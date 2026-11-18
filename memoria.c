@@ -1,0 +1,1 @@
+//manejo de la memoria: la lista de bloques insertar y liberar procesos

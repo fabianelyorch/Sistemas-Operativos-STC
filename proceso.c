@@ -1,0 +1,1 @@
+//la estructura del proceso con id, tamaño y cuanto

@@ -1,0 +1,1 @@
+//tamaños del sistema(cuanto, memoria, tamaño minimo y maximo de proceso etc)
