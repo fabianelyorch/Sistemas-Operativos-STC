@@ -13,4 +13,8 @@ typedef struct {
     int tam_total;
 } Memoria;
 
+Memoria *crear_memoria(int tam_total);
+void imprimir_memoria(Memoria *m);
+void liberar_memoria(Memoria *m);
+
 #endif
