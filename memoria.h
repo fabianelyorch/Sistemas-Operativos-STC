@@ -2,10 +2,10 @@
 #define MEMORIA_H
 #include "proceso.h"
 
-typedef struct Bloque {
-    Proceso proc;          /* si proc.id == 0, el bloque es un hueco */
-    int inicio;            /* direccion de inicio en KB */
-    struct Bloque *sig;
+typedef struct Bloque {    //basicamente representa el proceso que esta usando un hueco de la memoria
+    Proceso proc;          //los datos del proceso en un pedazo
+    int inicio;            //la direccin en KB en que empieza un pedazo
+    struct Bloque *sig;    // apuntador al siguiente espacio de la cadena
 } Bloque;
 
 typedef struct {

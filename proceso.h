@@ -3,7 +3,7 @@
 
 typedef struct {
     int id;        
-    int tamano;    
+    int tam;    
     int cuanto;
     int llegada;   // en que ciclo entra
 } Proceso;
