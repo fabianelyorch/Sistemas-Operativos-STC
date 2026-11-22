@@ -23,7 +23,6 @@ Memoria *crear_memoria(int tam_total) {
     m->tam_total = tam_total;
     return m;
 
-
 }
 
 void imprimir_memoria(Memoria *m) {
