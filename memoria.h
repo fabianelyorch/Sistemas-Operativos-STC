@@ -16,5 +16,6 @@ typedef struct {
 Memoria *crear_memoria(int tam_total);
 void imprimir_memoria(Memoria *m);
 void liberar_memoria(Memoria *m);
+int peor_ajuste(Memoria *m, Proceso p);
 
 #endif
