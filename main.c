@@ -7,9 +7,15 @@
 
 int main(int argc, char *argv[]) {
     int tam_memoria = 4096;
-    int cuanto_sistema = 2;
-    int tam_max = 600;
-    int cuanto_max = 10;
+    int cuanto_sistema = 0;
+    int tam_max = 0;
+    int cuanto_max = 0;
+    printf("Ingresa el cuanto del sistema: \n");
+    scanf("%d", &cuanto_sistema);
+    printf("Ingresa el tamano maximo de memoria del proceso: \n");
+    scanf("%d", &tam_max);
+    printf("Ingresa el tamano maximo  del cuanto de cada proceso: \n");
+    scanf("%d", &cuanto_max);
     int ciclos = 20;            
 
     int id = 1;
