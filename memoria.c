@@ -25,7 +25,21 @@ Memoria *crear_memoria(int tam_total) {
 
 }
 
-void imprimir_memoria(Memoria *m) {
+void imprimir_memoria(Memoria *m){
+    Bloque *actual;
+
+    if (m == NULL){
+        printf("Memoria no creada\n");
+        return;
+    }
+    actual = m->cabeza;
+    while (actual != NULL) {
+        printf("[%d,%d,%d]", actual->proc.id, actual->proc.tam, actual->proc.cuanto);
+        actual = actual->sig;
+    }
+    printf("\n");
+}
+void imprimir_memoria_detalle(Memoria *m){
     Bloque *actual;
     int fin;
 
@@ -37,7 +51,7 @@ void imprimir_memoria(Memoria *m) {
     printf("\n--- Memoria (%d KB) ---\n", m->tam_total);
     actual = m->cabeza;
 
-    while (actual != NULL) {
+    while (actual != NULL){
         fin = actual->inicio + actual->proc.tam - 1;
         printf("[%d - %d] (%d KB): ", actual->inicio, fin, actual->proc.tam);
 
@@ -51,7 +65,7 @@ void imprimir_memoria(Memoria *m) {
     }
 }
 
-void liberar_memoria(Memoria *m) {
+void liberar_memoria(Memoria *m){
     Bloque *actual;
     Bloque *sig;
 
