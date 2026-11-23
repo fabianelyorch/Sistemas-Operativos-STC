@@ -14,9 +14,12 @@ typedef struct {
 } Memoria;
 
 Memoria *crear_memoria(int tam_total);
-void imprimir_memoria(Memoria *m);          
+void imprimir_memoria(Memoria *m);        
 void imprimir_memoria_detalle(Memoria *m);  
 void liberar_memoria(Memoria *m);
 int peor_ajuste(Memoria *m, Proceso p);
+Bloque *buscar_bloque(Memoria *m, int id);
+int liberar_proceso(Memoria *m, int id);
+void condensar_huecos(Memoria *m);
 
 #endif
