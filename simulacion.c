@@ -22,8 +22,6 @@ void inicializar_control(ControlSim *ctrl, int vel_ms) {
 
 /* Pausa segun velocidad en ms */
 void esperar_ciclo(ControlSim *ctrl) {
-    useconds_t microsegundos;
-
     if (ctrl == NULL || ctrl->velocidad_ms <= 0) {
         return;
     }
@@ -31,8 +29,7 @@ void esperar_ciclo(ControlSim *ctrl) {
 #ifdef _WIN32
     Sleep((DWORD)ctrl->velocidad_ms);
 #else
-    microsegundos = (useconds_t)ctrl->velocidad_ms * 1000;
-    usleep(microsegundos);
+    usleep((unsigned int)ctrl->velocidad_ms * 1000);
 #endif
 }
 
