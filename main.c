@@ -6,7 +6,7 @@
 #include "generador.h"
 #include "simulacion.h"
 
-#define PAUSA_MS 500
+#define PAUSA_MS 10000   
 
 int main(int argc, char *argv[]){
     int tam_memoria = 4096;
@@ -19,7 +19,6 @@ int main(int argc, char *argv[]){
     scanf("%d", &cuanto_max);          
 
     int id = 1;
-    char resp;
     Memoria *m;
     ColaRR cola;
     Proceso listo;          
@@ -35,9 +34,13 @@ int main(int argc, char *argv[]){
 
     printf("Salida inicial\n");
     imprimir_memoria(m);
+    printf("Escribe 's' en cualquier momento para detener la simulacion\n");
 
     while (debe_continuar(&ctrl)) {
-        esperar_ciclo(&ctrl);            
+        esperar_ciclo(&ctrl);           
+        if (!debe_continuar(&ctrl)) {
+            break;
+        }
         avanzar_ciclo(&ctrl);
         printf("\n--- CICLO %d ---\n", ctrl.ciclo_actual);
 
@@ -57,7 +60,7 @@ int main(int argc, char *argv[]){
             b->proc.cuanto -= cuanto_sistema;
 
             if (b->proc.cuanto > 0) {
-                encolar(&cola, b);                  /* le queda cuanto: vuelve al final */
+                encolar(&cola, b);               
                 imprimir_cola(&cola);
                 imprimir_memoria(m);
             } else {
@@ -71,13 +74,9 @@ int main(int argc, char *argv[]){
                 imprimir_memoria(m);
             }
         }
-
-        printf("Detener simulacion? (s/n): ");
-        if (scanf(" %c", &resp) != 1 || resp == 's' || resp == 'S') {
-            solicitar_paro(&ctrl);
-        }
     }
 
+    printf("\nSimulacion detenida por el usuario\n");
     liberar_memoria(m);
     return 0;
 }
