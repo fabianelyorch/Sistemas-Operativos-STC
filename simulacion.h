@@ -1,12 +1,14 @@
 #ifndef SIMULACION_H
 #define SIMULACION_H
 
+/* Datos de control de la simulacion */
 typedef struct {
     int velocidad_ms;
     int ciclo_actual;
     int detener;
 } ControlSim;
 
+/* Funciones de control */
 void inicializar_control(ControlSim *ctrl, int vel_ms);
 void esperar_ciclo(ControlSim *ctrl);
 int debe_continuar(ControlSim *ctrl);
