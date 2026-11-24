@@ -7,35 +7,25 @@
 #include "simulacion.h"
 
 int main(int argc, char *argv[]) {
-   int tam_memoria = 4096;
-    int cuanto_sistema = 0;
-    int tam_max = 0;
-    int cuanto_max = 0;
-    printf("Ingresa el cuanto del sistema: \n");
-    scanf("%d", &cuanto_sistema);
-    printf("Ingresa el tamano maximo de memoria del proceso: \n");
-    scanf("%d", &tam_max);
-    printf("Ingresa el tamano maximo  del cuanto de cada proceso: \n");
-    scanf("%d", &cuanto_max);
-    int limite_usuario, opcion, nueva_vel, pasos_dados, i;
-    ControlSim ctrl;
-
-    int id = 1;
+    int tam_memoria, cuanto_sistema, tam_max, cuanto_max, id;
+    char resp;
     Memoria *m;
     ColaRR cola;
-    Proceso listo;          
+    Proceso listo;
     Bloque *b;
+    ControlSim ctrl;
+
+    /* Valores iniciales de la simulacion */
+    tam_memoria = 4096;
+    cuanto_sistema = 2;
+    tam_max = 600;
+    cuanto_max = 10;
+    id = 1;
 
     srand(argc > 1 ? (unsigned int)atoi(argv[1]) : (unsigned int)time(NULL));
-    
-    printf("Ciclo limite para parar (0 para detener manualmente): ");
-    scanf("%d", &limite_usuario);
+    inicializar_control(&ctrl, 500);
 
-    printf("Velocidad inicial (ciclos por paso, minimo 1): ");
-    scanf("%d", &nueva_vel);
-
-    inicializar_control(&ctrl, nueva_vel, limite_usuario);
-
+    /* Crea memoria, cola y primer proceso */
     m = crear_memoria(tam_memoria);
     iniciar_cola(&cola);
     listo = generar_proceso(id++, tam_max, cuanto_max);
@@ -43,30 +33,29 @@ int main(int argc, char *argv[]) {
     printf("Salida inicial\n");
     imprimir_memoria(m);
 
-    while (puede_avanzar(&ctrl)) {
-        pasos_dados = avanzar_ciclo(&ctrl);
-        if (pasos_dados <= 0) {
-            break;
+    /* Avanza ciclo por ciclo hasta que pidan parar */
+    while (debe_continuar(&ctrl)) {
+        avanzar_ciclo(&ctrl);
+        esperar_ciclo(&ctrl);
+
+        printf("\n--- CICLO %d ---\n", ctrl.ciclo_actual);
+
+        /* Intenta meter el proceso listo en memoria */
+        if (peor_ajuste(m, listo)) {
+            listo.llegada = ctrl.ciclo_actual;
+            printf("Entra Proceso [%d,%d,%d]\n", listo.id, listo.tam, listo.cuanto);
+            encolar(&cola, buscar_bloque(m, listo.id));
+            imprimir_memoria(m);
+            listo = generar_proceso(id++, tam_max, cuanto_max);
+        } else {
+            printf("Proceso [%d,%d,%d] espera hueco\n", listo.id, listo.tam, listo.cuanto);
         }
 
-        for (i = 0; i < pasos_dados; i++) {
-            printf("\n--- CICLO %d (Vel: %d) ---\n", ctrl.ciclo_actual - pasos_dados + i + 1, ctrl.velocidad);
-
-            if (peor_ajuste(m, listo)) {
-                printf("Entra Proceso [%d,%d,%d]\n", listo.id, listo.tam, listo.cuanto);
-                encolar(&cola, buscar_bloque(m, listo.id));
-                imprimir_memoria(m);
-                listo = generar_proceso(id++, tam_max, cuanto_max);
-            } else {
-                printf("Proceso [%d,%d,%d] espera hueco\n", listo.id, listo.tam, listo.cuanto);
-            }
-
-            b = desencolar(&cola);
-            if (b == NULL) {
-                printf("No hay procesos que atender\n");
-                continue;
-            }
-
+        /* Atiende un cuanto con Round Robin */
+        b = desencolar(&cola);
+        if (b == NULL) {
+            printf("No hay procesos que atender\n");
+        } else {
             printf("Atendiendo proceso [%d,%d,%d]\n", b->proc.id, b->proc.tam, b->proc.cuanto);
             b->proc.cuanto -= cuanto_sistema;
 
@@ -86,36 +75,15 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (!puede_avanzar(&ctrl)) {
-            break;
-        }
-
-        printf("\n1. Siguiente paso (%d ciclos)\n", ctrl.velocidad);
-        printf("2. Cambiar velocidad\n");
-        printf("3. Cambiar ciclo limite\n");
-        printf("4. Detener simulacion ahora\n");
-        printf("Opcion: ");
-        scanf("%d", &opcion);
-
-        if (opcion == 2) {
-            printf("Nueva velocidad (minimo 1): ");
-            scanf("%d", &nueva_vel);
-            if (configurar_velocidad(&ctrl, nueva_vel)) {
-                printf("Velocidad actual: %d\n", ctrl.velocidad);
-            } else {
-                printf("Velocidad no valida\n");
-            }
-        } else if (opcion == 3) {
-            printf("Nuevo ciclo limite (0 sin limite): ");
-            scanf("%d", &limite_usuario);
-            configurar_limite(&ctrl, limite_usuario);
-            printf("Limite actualizado a %d\n", ctrl.ciclo_limite);
-        } else if (opcion == 4) {
+        /* Pregunta solo si desea detener */
+        printf("Detener simulacion? (s/n): ");
+        scanf(" %c", &resp);
+        if (resp == 's' || resp == 'S') {
             solicitar_paro(&ctrl);
-            printf("Simulacion detenida por el usuario\n");
         }
     }
 
+    /* Libera la memoria al terminar */
     liberar_memoria(m);
     return 0;
 }
