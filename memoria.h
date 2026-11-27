@@ -5,6 +5,8 @@
 typedef struct Bloque {    //basicamente representa el proceso que esta usando un hueco de la memoria
     Proceso proc;          //los datos del proceso en un pedazo
     int inicio;            //la direccin en KB en que empieza un pedazo
+    int tam_bloque;        //Buddy: tamano (potencia de 2) que ocupa el bloque
+    char lado;             //Buddy: '#' si es el inicio de la mitad derecha
     struct Bloque *sig;    // apuntador al siguiente espacio de la cadena
 } Bloque;
 

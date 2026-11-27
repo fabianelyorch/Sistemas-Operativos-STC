@@ -5,23 +5,44 @@
 #include "RoundRobin.h"
 #include "generador.h"
 #include "simulacion.h"
+#include "buddy.h"
+#define PAUSA_MS 5000
 
-#define PAUSA_MS 10000   
+
+int colocar(Memoria *m, Proceso p, int alg) {
+    switch (alg) {
+        case 1: return peor_ajuste(m, p);
+        case 2: return buddy_colocar(m, p);
+    }
+    return 0;
+}
 
 int main(int argc, char *argv[]){
     int tam_memoria = 4096;
     int cuanto_sistema, tam_max, cuanto_max;
+    int alg, mb;
+
+    printf("Ingresa el tamano de la memoria (1024 4096 8192) en KB: \n");
+    scanf("%d", &mb);
+    printf("Ingresa el algoritmo de colocacion     1:Peor ajuste      2: Buddy system \n");
+    scanf("%d", &alg);
     printf("Ingresa el cuanto del sistema: \n");
     scanf("%d", &cuanto_sistema);
-    printf("Ingresa el tamano maximo de memoria del proceso: \n");
+    printf("Ingresa el tamano maximo de memoria del proceso en KB: \n");
     scanf("%d", &tam_max);
     printf("Ingresa el tamano maximo  del cuanto de cada proceso: \n");
-    scanf("%d", &cuanto_max);          
+    scanf("%d", &cuanto_max);
+
+    tam_memoria = mb;
+    if (alg == 2 && (mb < 32 || (mb & (mb - 1)) != 0)) {
+        printf("Buddy system necesita una memoria potencia de 2 (1024, 4096, 8192)\n");
+        return 1;
+    }
 
     int id = 1;
     Memoria *m;
     ColaRR cola;
-    Proceso listo;          
+    Proceso listo;
     Bloque *b;
     ControlSim ctrl;
 
@@ -37,14 +58,14 @@ int main(int argc, char *argv[]){
     printf("Escribe 's' en cualquier momento para detener la simulacion\n");
 
     while (debe_continuar(&ctrl)) {
-        esperar_ciclo(&ctrl);           
+        esperar_ciclo(&ctrl);
         if (!debe_continuar(&ctrl)) {
             break;
         }
         avanzar_ciclo(&ctrl);
         printf("\n--- CICLO %d ---\n", ctrl.ciclo_actual);
 
-        if (peor_ajuste(m, listo)) {
+        if (colocar(m, listo, alg)) {
             printf("Entra Proceso [%d,%d,%d]\n", listo.id, listo.tam, listo.cuanto);
             encolar(&cola, buscar_bloque(m, listo.id));
             imprimir_memoria(m);
@@ -60,18 +81,26 @@ int main(int argc, char *argv[]){
             b->proc.cuanto -= cuanto_sistema;
 
             if (b->proc.cuanto > 0) {
-                encolar(&cola, b);               
+                encolar(&cola, b);
                 imprimir_cola(&cola);
                 imprimir_memoria(m);
             } else {
-                b->proc.cuanto = 0;      
+                b->proc.cuanto = 0;
                 imprimir_cola(&cola);
                 printf("Descargando proceso [%d,%d,%d]\n", b->proc.id, b->proc.tam, b->proc.cuanto);
-                liberar_proceso(m, b->proc.id);
-                imprimir_memoria(m);
-                printf("Condensando huecos\n");
-                condensar_huecos(m);
-                imprimir_memoria(m);
+                if (alg == 2) {
+                    buddy_liberar(m, b->proc.id);
+                    imprimir_memoria(m);
+                    printf("Fusionando buddies\n");
+                    buddy_fusionar(m);
+                    imprimir_memoria(m);
+                } else {
+                    liberar_proceso(m, b->proc.id);
+                    imprimir_memoria(m);
+                    printf("Condensando huecos\n");
+                    condensar_huecos(m);
+                    imprimir_memoria(m);
+                }
             }
         }
     }

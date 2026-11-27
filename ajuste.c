@@ -38,6 +38,8 @@ int peor_ajuste(Memoria *m, Proceso p) {
         nuevo->proc.tam = sobrante;
         nuevo->proc.cuanto = 0;
         nuevo->proc.llegada = 0;                          //incializa un nuevo bloque libre con el espacio sobrante
+        nuevo->tam_bloque = sobrante;
+        nuevo->lado = ' ';
         nuevo->inicio = peor->inicio + p.tam; //la direccion del nuevo bloque va justo desepues del bloque que ya se le asigno el proceso
         nuevo->sig = peor->sig;
         peor->sig = nuevo;
@@ -47,6 +49,7 @@ int peor_ajuste(Memoria *m, Proceso p) {
     peor->proc.tam = p.tam;           //asigna los datos del proceso al bloque seleccionado
     peor->proc.cuanto = p.cuanto;
     peor->proc.llegada = p.llegada;
+    peor->tam_bloque = p.tam;   /* sin Buddy el bloque mide justo lo del proceso */
 
     return 1;
 }
